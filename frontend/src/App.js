@@ -1,29 +1,30 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
 import Landing from "./components/Landing";
 import Login from "./components/Login";
-import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
+import Conditions from "./components/Conditions";
 
-// Utility: check if token exists
-const isAuthenticated = () => !!localStorage.getItem("token");
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <Router>
+      <div className="min-h-screen flex flex-col">
+        {/* Navbar */}
+        <Navbar />
 
-        {/* Protected dashboard */}
-        <Route
-          path="/dashboard"
-          element={
-            isAuthenticated() ? <Dashboard /> : <Navigate to="/login" replace />
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+        {/* Page content */}
+        <main className="flex-grow p-6">
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/conditions" element={<Conditions />} />   {/* ✅ new page */}
+
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
 }
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../api";
+import BoardAvailability from "./BoardAvailability";
 
 export default function BoardRentalForm() {
   const [boards, setBoards] = useState([]);
@@ -9,12 +10,10 @@ export default function BoardRentalForm() {
   const [endHour, setEndHour] = useState("");
   const [message, setMessage] = useState("");
 
-  // Load boards
   useEffect(() => {
     API.get("surfboards/").then((res) => setBoards(res.data));
   }, []);
 
-  // Handle rental booking
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -33,8 +32,23 @@ export default function BoardRentalForm() {
     } catch (error) {
       console.error("Rental error:", error.response?.data || error.message);
       setMessage(
-        "❌ Error: " + (error.response?.data?.detail || "Could not create rental")
+        "❌ Error: " +
+          (error.response?.data?.detail || "Could not create rental")
       );
+    }
+  };
+
+  // ✅ Handle slot click
+  const handleSlotSelect = (hour) => {
+    const hourOnly = hour.split(":")[0]; // "10:00" -> "10"
+    if (!startHour) {
+      setStartHour(hourOnly);
+    } else if (!endHour) {
+      setEndHour(hourOnly);
+    } else {
+      // reset if both already set
+      setStartHour(hourOnly);
+      setEndHour("");
     }
   };
 
@@ -77,46 +91,31 @@ export default function BoardRentalForm() {
           />
         </div>
 
-        {/* Start Hour */}
-        <div>
-          <label className="block mb-1">Start Hour</label>
-          <select
-            value={startHour}
-            onChange={(e) => setStartHour(e.target.value)}
-            className="border p-2 rounded w-full"
-            required
-          >
-            <option value="">-- Select hour --</option>
-            {[...Array(24).keys()].map((h) => (
-              <option key={h} value={String(h).padStart(2, "0")}>
-                {String(h).padStart(2, "0")}:00
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* ✅ Availability Grid */}
+        {selectedBoard && date && (
+          <BoardAvailability
+            boardId={selectedBoard}
+            date={date}
+            onSelectSlot={handleSlotSelect}
+          />
+        )}
 
-        {/* End Hour */}
-        <div>
-          <label className="block mb-1">End Hour</label>
-          <select
-            value={endHour}
-            onChange={(e) => setEndHour(e.target.value)}
-            className="border p-2 rounded w-full"
-            required
-          >
-            <option value="">-- Select hour --</option>
-            {[...Array(24).keys()].map((h) => (
-              <option key={h} value={String(h).padStart(2, "0")}>
-                {String(h).padStart(2, "0")}:00
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Show selected times */}
+        {(startHour || endHour) && (
+          <div className="p-2 bg-gray-100 rounded">
+            <p>
+              <strong>Selected:</strong>{" "}
+              {startHour ? `${startHour}:00` : "--"} →{" "}
+              {endHour ? `${endHour}:00` : "--"}
+            </p>
+          </div>
+        )}
 
         {/* Submit */}
         <button
           type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          disabled={!startHour || !endHour}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
         >
           Confirm Rental
         </button>
