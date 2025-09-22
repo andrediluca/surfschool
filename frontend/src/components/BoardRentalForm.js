@@ -5,8 +5,8 @@ export default function BoardRentalForm() {
   const [boards, setBoards] = useState([]);
   const [selectedBoard, setSelectedBoard] = useState("");
   const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [startHour, setStartHour] = useState("");
+  const [endHour, setEndHour] = useState("");
   const [message, setMessage] = useState("");
 
   // Load boards
@@ -17,18 +17,21 @@ export default function BoardRentalForm() {
   // Handle rental booking
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const start_time = `${startHour}:00:00`;
+    const end_time = `${endHour}:00:00`;
+
     try {
       const response = await API.post("rentals/", {
-        user: 1, // TODO: replace with logged-in user later
         board: selectedBoard,
         date,
-        start_time: startTime,
-        end_time: endTime,
+        start_time,
+        end_time,
       });
       console.log("Rental created:", response.data);
       setMessage("✅ Rental confirmed!");
     } catch (error) {
-      console.error(error);
+      console.error("Rental error:", error.response?.data || error.message);
       setMessage(
         "❌ Error: " + (error.response?.data?.detail || "Could not create rental")
       );
@@ -74,28 +77,40 @@ export default function BoardRentalForm() {
           />
         </div>
 
-        {/* Start Time */}
+        {/* Start Hour */}
         <div>
-          <label className="block mb-1">Start Time</label>
-          <input
-            type="time"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
+          <label className="block mb-1">Start Hour</label>
+          <select
+            value={startHour}
+            onChange={(e) => setStartHour(e.target.value)}
             className="border p-2 rounded w-full"
             required
-          />
+          >
+            <option value="">-- Select hour --</option>
+            {[...Array(24).keys()].map((h) => (
+              <option key={h} value={String(h).padStart(2, "0")}>
+                {String(h).padStart(2, "0")}:00
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* End Time */}
+        {/* End Hour */}
         <div>
-          <label className="block mb-1">End Time</label>
-          <input
-            type="time"
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
+          <label className="block mb-1">End Hour</label>
+          <select
+            value={endHour}
+            onChange={(e) => setEndHour(e.target.value)}
             className="border p-2 rounded w-full"
             required
-          />
+          >
+            <option value="">-- Select hour --</option>
+            {[...Array(24).keys()].map((h) => (
+              <option key={h} value={String(h).padStart(2, "0")}>
+                {String(h).padStart(2, "0")}:00
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Submit */}
