@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Landing() {
-  const isLoggedIn = !!localStorage.getItem("token");
+  const { isLoggedIn } = useAuth();   // 👈 state-driven, no localStorage check
 
   return (
     <div className="flex flex-col items-center justify-center py-20">

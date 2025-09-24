@@ -1,14 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";  // ✅ use context
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { isLoggedIn, logout } = useAuth();        // ✅ from context
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // clear JWT
-    navigate("/"); // redirect to landing page
+    logout();   // updates context + clears localStorage
+    navigate("/"); 
   };
-
-  const isLoggedIn = !!localStorage.getItem("token");
 
   return (
     <nav className="bg-blue-600 text-white px-6 py-3 flex justify-between items-center shadow">
