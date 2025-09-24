@@ -4,6 +4,7 @@ import Landing from "./components/Landing";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import Conditions from "./components/Conditions";
+import Register from "./components/Register";
 
 
 function App() {
@@ -19,8 +20,8 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/conditions" element={<Conditions />} />   {/* ✅ new page */}
-
+            <Route path="/conditions" element={<Conditions />} />
+            <Route path="/signup" element={<Register />} />
           </Routes>
         </main>
       </div>
