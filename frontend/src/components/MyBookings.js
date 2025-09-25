@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
 import API from "../api";
 
 export default function MyBookings() {
@@ -64,26 +66,34 @@ export default function MyBookings() {
 
       {/* Rentals */}
       <h3 className="text-lg font-semibold mb-2">Board Rentals</h3>
-      {rentals.length === 0 ? (
-        <p className="text-gray-500">No active rentals</p>
-      ) : (
-        <ul className="space-y-2">
-          {rentals.map((r) => (
-            <li key={r.id} className="border p-2 rounded flex justify-between">
-              <span>
-                {r.board.size} {r.board.type} – {r.date} ({r.start_time} →{" "}
-                {r.end_time})
-              </span>
-              <button
-                onClick={() => cancelRental(r.id)}
-                className="bg-red-600 text-white px-2 py-1 rounded"
-              >
-                Cancel
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+{rentals.length === 0 ? (
+  <p className="text-gray-500">No active rentals</p>
+) : (
+  <ul className="space-y-2">
+    {rentals.map((r) => (
+      <li key={r.id} className="border p-2 rounded flex justify-between items-center">
+        <span>
+          {r.board.size} {r.board.type} – {r.date} ({r.start_time} → {r.end_time})
+        </span>
+        <div className="space-x-2">
+          <Link
+            to={`/booking/${r.id}`}
+            state={{ rental: r }} // 👈 pass rental data
+            className="bg-blue-600 text-white px-2 py-1 rounded"
+          >
+            View
+          </Link>
+          <button
+            onClick={() => cancelRental(r.id)}
+            className="bg-red-600 text-white px-2 py-1 rounded"
+          >
+            Cancel
+          </button>
+        </div>
+      </li>
+    ))}
+  </ul>
+)}
     </div>
   );
 }

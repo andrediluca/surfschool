@@ -5,6 +5,7 @@ import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import Conditions from "./components/Conditions";
 import Register from "./components/Register";
+import BookingDetail from "./components/BookingDetail";
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/conditions" element={<Conditions />} />
+            <Route path="/booking/:id" element={<BookingDetail />} />
             <Route path="/signup" element={<Register />} />
           </Routes>
         </main>
