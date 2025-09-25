@@ -6,9 +6,9 @@ export default function BoardRentalForm() {
   const [boards, setBoards] = useState([]);
   const [selectedBoard, setSelectedBoard] = useState("");
   const [date, setDate] = useState("");
-  const [startHour, setStartHour] = useState("");
-  const [endHour, setEndHour] = useState("");
+  const [selectedSlots, setSelectedSlots] = useState([]);
   const [message, setMessage] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0); // 🔑 force refresh
 
   useEffect(() => {
     API.get("surfboards/").then((res) => setBoards(res.data));
@@ -17,8 +17,24 @@ export default function BoardRentalForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const start_time = `${startHour}:00:00`;
-    const end_time = `${endHour}:00:00`;
+    if (selectedSlots.length === 0) {
+      setMessage("❌ Please select at least one slot");
+      return;
+    }
+
+    const sorted = [...selectedSlots].sort((a, b) => a.localeCompare(b));
+    const start_time = `${sorted[0]}:00`;
+
+    let endHour;
+    if (selectedSlots.length === 1) {
+      // ✅ Single slot → 1 hour booking
+      endHour = parseInt(sorted[0].split(":")[0], 10) + 1;
+    } else {
+      // ✅ Range → end at last selected slot
+      endHour = parseInt(sorted[sorted.length - 1].split(":")[0], 10) + 1;
+    }
+
+    const end_time = `${endHour.toString().padStart(2, "0")}:00:00`;
 
     try {
       const response = await API.post("rentals/", {
@@ -29,6 +45,8 @@ export default function BoardRentalForm() {
       });
       console.log("Rental created:", response.data);
       setMessage("✅ Rental confirmed!");
+      setSelectedSlots([]);
+      setRefreshKey((prev) => prev + 1); // refresh grid
     } catch (error) {
       console.error("Rental error:", error.response?.data || error.message);
       setMessage(
@@ -38,18 +56,28 @@ export default function BoardRentalForm() {
     }
   };
 
-  // ✅ Handle slot click
-  const handleSlotSelect = (hour) => {
-    const hourOnly = hour.split(":")[0]; // "10:00" -> "10"
-    if (!startHour) {
-      setStartHour(hourOnly);
-    } else if (!endHour) {
-      setEndHour(hourOnly);
+  // ✅ Helper: display selection as a range
+  const renderSelection = () => {
+    if (selectedSlots.length === 0) return null;
+
+    const sorted = [...selectedSlots].sort((a, b) => a.localeCompare(b));
+    const start = sorted[0];
+    let endHour;
+
+    if (sorted.length === 1) {
+      endHour = parseInt(start.split(":")[0], 10) + 1;
     } else {
-      // reset if both already set
-      setStartHour(hourOnly);
-      setEndHour("");
+      endHour = parseInt(sorted[sorted.length - 1].split(":")[0], 10) + 1;
     }
+
+    const end = `${endHour.toString().padStart(2, "0")}:00`;
+    return (
+      <div className="p-2 bg-gray-100 rounded">
+        <p>
+          <strong>Selected:</strong> {start} → {end}
+        </p>
+      </div>
+    );
   };
 
   return (
@@ -91,30 +119,24 @@ export default function BoardRentalForm() {
           />
         </div>
 
-        {/* ✅ Availability Grid */}
+        {/* Availability Grid */}
         {selectedBoard && date && (
           <BoardAvailability
             boardId={selectedBoard}
             date={date}
-            onSelectSlot={handleSlotSelect}
+            selectedSlots={selectedSlots}
+            setSelectedSlots={setSelectedSlots}
+            refreshKey={refreshKey} // 🔑 pass refresh signal
           />
         )}
 
         {/* Show selected times */}
-        {(startHour || endHour) && (
-          <div className="p-2 bg-gray-100 rounded">
-            <p>
-              <strong>Selected:</strong>{" "}
-              {startHour ? `${startHour}:00` : "--"} →{" "}
-              {endHour ? `${endHour}:00` : "--"}
-            </p>
-          </div>
-        )}
+        {renderSelection()}
 
         {/* Submit */}
         <button
           type="submit"
-          disabled={!startHour || !endHour}
+          disabled={selectedSlots.length < 1} // ✅ allow 1 slot too
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
         >
           Confirm Rental
