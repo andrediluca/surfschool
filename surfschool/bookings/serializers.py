@@ -20,8 +20,8 @@ class SurfboardSerializer(serializers.ModelSerializer):
 class BoardRentalSerializer(serializers.ModelSerializer):
     class Meta:
         model = BoardRental
-        fields = '__all__'
-        read_only_fields = ["user"]
+        fields = "__all__"
+        read_only_fields = ["user", "reference"] 
 
 
 class SeaConditionSerializer(serializers.ModelSerializer):

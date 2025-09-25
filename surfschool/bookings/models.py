@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+import uuid
 
 class Lesson(models.Model):
     LEVELS = [
@@ -53,11 +53,12 @@ class BoardRental(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     board = models.ForeignKey(Surfboard, on_delete=models.CASCADE)
     date = models.DateField()
-    start_time = models.TimeField(null=True, blank=True)
-    end_time = models.TimeField(null=True, blank=True)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    reference = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)  # ✅ unique booking ref
 
     def __str__(self):
-        return f"{self.board} → {self.user} on {self.date} ({self.start_time}-{self.end_time})"
+        return f"{self.user} - {self.board} on {self.date} ({self.reference})"
 
 class SeaCondition(models.Model):
     LEVELS = [
