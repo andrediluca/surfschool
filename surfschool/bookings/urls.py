@@ -5,7 +5,7 @@ from .views import (
     BoardRentalViewSet, SeaConditionViewSet, RegisterView, MeView,
     InstructorLessonViewSet, InstructorSlotViewSet, InstructorConditionViewSet,
     InstructorBookingViewSet, InstructorRentalViewSet, InstructorSurfCallViewSet,
-    InstructorStudentView, MyStatsView, CheckinView, SurfCallView,
+    InstructorStudentView, MyStatsView, CheckinView, SurfCallView, InstructorListView,
 )
 
 router = DefaultRouter()
@@ -31,5 +31,6 @@ urlpatterns = [
     path('surfcall/', SurfCallView.as_view(), name='surfcall'),
     path('instructor/', include(instructor_router.urls)),
     path('instructor/students/', InstructorStudentView.as_view(), name='instructor-students'),
+    path('instructor/instructors/', InstructorListView.as_view(), name='instructor-list'),
     path('instructor/checkin/', CheckinView.as_view(), name='instructor-checkin'),
 ]

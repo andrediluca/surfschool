@@ -154,6 +154,21 @@ class SeaConditionViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
 
+class InstructorListView(APIView):
+    """Returns distinct instructor names from existing slots."""
+    permission_classes = [IsStaff]
+
+    def get(self, request):
+        names = (
+            LessonSlot.objects
+            .exclude(instructor='')
+            .values_list('instructor', flat=True)
+            .distinct()
+            .order_by('instructor')
+        )
+        return Response(list(names))
+
+
 class SurfCallView(APIView):
     """Public: returns the single active call (waiting or on), if any."""
     permission_classes = [AllowAny]
