@@ -6,6 +6,7 @@ from .views import (
     InstructorLessonViewSet, InstructorSlotViewSet, InstructorConditionViewSet,
     InstructorBookingViewSet, InstructorRentalViewSet, InstructorSurfCallViewSet,
     InstructorStudentView, MyStatsView, CheckinView, SurfCallView, InstructorListView,
+    PushSubscribeView, VapidPublicKeyView,
 )
 
 router = DefaultRouter()
@@ -33,4 +34,6 @@ urlpatterns = [
     path('instructor/students/', InstructorStudentView.as_view(), name='instructor-students'),
     path('instructor/instructors/', InstructorListView.as_view(), name='instructor-list'),
     path('instructor/checkin/', CheckinView.as_view(), name='instructor-checkin'),
+    path('auth/push/', PushSubscribeView.as_view(), name='push-subscribe'),
+    path('push/vapid-public-key/', VapidPublicKeyView.as_view(), name='vapid-public-key'),
 ]

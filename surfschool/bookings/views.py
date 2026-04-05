@@ -1,6 +1,6 @@
 import datetime
 from rest_framework import viewsets, generics, mixins
-from .models import Lesson, LessonSlot, Booking, Surfboard, BoardRental, SeaCondition, SurfCall
+from .models import Lesson, LessonSlot, Booking, Surfboard, BoardRental, SeaCondition, SurfCall, PushSubscription
 from .serializers import (
     LessonSerializer, LessonSlotSerializer, BookingSerializer,
     SurfboardSerializer, BoardRentalSerializer,
@@ -180,10 +180,65 @@ class SurfCallView(APIView):
         return Response(SurfCallSerializer(call).data)
 
 
+class VapidPublicKeyView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from django.conf import settings
+        return Response({'publicKey': settings.VAPID_PUBLIC_KEY})
+
+
+class PushSubscribeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        endpoint = request.query_params.get('endpoint')
+        if endpoint:
+            exists = PushSubscription.objects.filter(user=request.user, endpoint=endpoint).exists()
+        else:
+            exists = PushSubscription.objects.filter(user=request.user).exists()
+        return Response({'subscribed': exists})
+
+    def post(self, request):
+        endpoint = request.data.get('endpoint')
+        p256dh = request.data.get('p256dh')
+        auth = request.data.get('auth')
+        if not all([endpoint, p256dh, auth]):
+            return Response({'error': 'endpoint, p256dh, auth required'}, status=400)
+        PushSubscription.objects.update_or_create(
+            endpoint=endpoint,
+            defaults={'user': request.user, 'p256dh': p256dh, 'auth': auth},
+        )
+        return Response({'status': 'subscribed'})
+
+    def delete(self, request):
+        endpoint = request.data.get('endpoint')
+        qs = PushSubscription.objects.filter(user=request.user)
+        if endpoint:
+            qs = qs.filter(endpoint=endpoint)
+        qs.delete()
+        return Response({'status': 'unsubscribed'})
+
+
 class InstructorSurfCallViewSet(viewsets.ModelViewSet):
     queryset = SurfCall.objects.all()
     serializer_class = SurfCallSerializer
     permission_classes = [IsStaff]
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        if instance.status in ('waiting', 'on'):
+            from .push_notifications import notify_surf_call
+            import threading
+            threading.Thread(target=notify_surf_call, args=(instance,), daemon=True).start()
+
+    def perform_update(self, serializer):
+        old_status = serializer.instance.status
+        instance = serializer.save()
+        if old_status != instance.status and instance.status in ('waiting', 'on'):
+            from .push_notifications import notify_surf_call
+            import threading
+            threading.Thread(target=notify_surf_call, args=(instance,), daemon=True).start()
 
 
 class RegisterView(generics.CreateAPIView):
@@ -211,7 +266,10 @@ class InstructorSlotViewSet(viewsets.ModelViewSet):
         instructor = serializer.validated_data.get('instructor') or (
             self.request.user.get_full_name() or self.request.user.username
         )
-        serializer.save(spots_left=max_p, instructor=instructor)
+        slot = serializer.save(spots_left=max_p, instructor=instructor)
+        from .push_notifications import notify_new_lesson
+        import threading
+        threading.Thread(target=notify_new_lesson, args=(slot,), daemon=True).start()
 
 
 class InstructorConditionViewSet(viewsets.ModelViewSet):

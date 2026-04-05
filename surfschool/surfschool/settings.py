@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-1(_2dp12tzwu!q_3#@3$8+ld!6wjingo8ypuk^@pk99ooc!e6r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -74,10 +74,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'surfschool.wsgi.application'
 CORS_ALLOW_ALL_ORIGINS = True
 
+# VAPID keys for Web Push Notifications
+# Generated once — do not regenerate (existing subscriptions will break).
+# Before production: move these to environment variables.
+VAPID_PRIVATE_KEY = "MHcCAQEEIMAr6S1tm-zny4wmTyU6qrKvOFykFNww03kZLQH9fjAdoAoGCCqGSM49AwEHoUQDQgAEdyY5FDrie9wVZ996_ghouokewcdLhKMU76az8CWj5X1-l8Lb87sD8ckFvVEF_CPDiaq-XCQ2ZoTDsD8qQHJXoA=="
+VAPID_PUBLIC_KEY = "BHcmORQ64nvcFWffev4IaLqJHsHHS4SjFO-ms_Alo-V9fpfC2_O7A_HJBb1RBfwjw4mqvlwkNmaEw7A_KkByV6A"
+VAPID_ADMIN_EMAIL = "admin@delta9surf.it"
+
+from datetime import timedelta
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
 # Database

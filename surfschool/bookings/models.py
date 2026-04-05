@@ -95,6 +95,20 @@ class SurfCall(models.Model):
         return f"{self.title} {self.start_date}–{self.end_date} [{self.status}]"
 
 
+class PushSubscription(models.Model):
+    """Browser push subscription endpoint stored per user."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='push_subscriptions')
+    endpoint = models.TextField(unique=True)
+    p256dh = models.TextField()
+    auth = models.TextField()
+    notify_lessons = models.BooleanField(default=True)
+    notify_surf_call = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} push sub"
+
+
 class SeaCondition(models.Model):
     LEVELS = [
         ('beginner', 'Beginner'),
