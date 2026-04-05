@@ -7,8 +7,9 @@ export default function BoardRentalForm() {
   const [selectedBoard, setSelectedBoard] = useState("");
   const [date, setDate] = useState("");
   const [selectedSlots, setSelectedSlots] = useState([]);
-  const [message, setMessage] = useState("");
-  const [refreshKey, setRefreshKey] = useState(0); // 🔑 force refresh
+  const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     API.get("surfboards/").then((res) => setBoards(res.data));
@@ -16,132 +17,122 @@ export default function BoardRentalForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (selectedSlots.length === 0) {
-      setMessage("❌ Please select at least one slot");
+      setMessage({ type: "err", text: "Seleziona almeno uno slot orario." });
       return;
     }
+    setLoading(true);
+    setMessage(null);
 
     const sorted = [...selectedSlots].sort((a, b) => a.localeCompare(b));
     const start_time = `${sorted[0]}:00`;
-
-    let endHour;
-    if (selectedSlots.length === 1) {
-      // ✅ Single slot → 1 hour booking
-      endHour = parseInt(sorted[0].split(":")[0], 10) + 1;
-    } else {
-      // ✅ Range → end at last selected slot
-      endHour = parseInt(sorted[sorted.length - 1].split(":")[0], 10) + 1;
-    }
-
-    const end_time = `${endHour.toString().padStart(2, "0")}:00:00`;
+    const endHour =
+      selectedSlots.length === 1
+        ? parseInt(sorted[0], 10) + 1
+        : parseInt(sorted[sorted.length - 1], 10) + 1;
+    const end_time = `${String(endHour).padStart(2, "0")}:00:00`;
 
     try {
-      const response = await API.post("rentals/", {
-        board: selectedBoard,
-        date,
-        start_time,
-        end_time,
-      });
-      console.log("Rental created:", response.data);
-      setMessage("✅ Rental confirmed!");
+      await API.post("rentals/", { board: selectedBoard, date, start_time, end_time });
+      setMessage({ type: "ok", text: "Noleggio confermato!" });
       setSelectedSlots([]);
-      setRefreshKey((prev) => prev + 1); // refresh grid
-    } catch (error) {
-      console.error("Rental error:", error.response?.data || error.message);
-      setMessage(
-        "❌ Error: " +
-          (error.response?.data?.detail || "Could not create rental")
-      );
+      setRefreshKey((k) => k + 1);
+    } catch (err) {
+      const detail = err.response?.data?.non_field_errors?.[0] || err.response?.data?.detail || "Impossibile completare il noleggio.";
+      setMessage({ type: "err", text: detail });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ✅ Helper: display selection as a range
-  const renderSelection = () => {
+  const selectedSummary = () => {
     if (selectedSlots.length === 0) return null;
-
     const sorted = [...selectedSlots].sort((a, b) => a.localeCompare(b));
     const start = sorted[0];
-    let endHour;
-
-    if (sorted.length === 1) {
-      endHour = parseInt(start.split(":")[0], 10) + 1;
-    } else {
-      endHour = parseInt(sorted[sorted.length - 1].split(":")[0], 10) + 1;
-    }
-
-    const end = `${endHour.toString().padStart(2, "0")}:00`;
-    return (
-      <div className="p-2 bg-gray-100 rounded">
-        <p>
-          <strong>Selected:</strong> {start} → {end}
-        </p>
-      </div>
-    );
+    const endHour =
+      sorted.length === 1
+        ? parseInt(start, 10) + 1
+        : parseInt(sorted[sorted.length - 1], 10) + 1;
+    return `${start} → ${String(endHour).padStart(2, "0")}:00`;
   };
 
   return (
-    <div className="p-4 border rounded-lg shadow mt-6">
-      <h2 className="text-xl font-bold mb-4">Rent a Surfboard</h2>
+    <div className="db-section">
+        <div className="db-section-tag">Noleggio</div>
+        <h2 className="db-section-title" style={{ marginBottom: "1rem" }}>Noleggia una Tavola</h2>
 
-      {message && (
-        <div className="mb-3 p-2 rounded bg-yellow-100">{message}</div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-3">
-        {/* Select Board */}
-        <div>
-          <label className="block mb-1">Select Board</label>
-          <select
-            value={selectedBoard}
-            onChange={(e) => setSelectedBoard(e.target.value)}
-            className="border p-2 rounded w-full"
-            required
-          >
-            <option value="">-- Choose a board --</option>
-            {boards.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.size} {b.type}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Date */}
-        <div>
-          <label className="block mb-1">Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="border p-2 rounded w-full"
-            required
-          />
-        </div>
-
-        {/* Availability Grid */}
-        {selectedBoard && date && (
-          <BoardAvailability
-            boardId={selectedBoard}
-            date={date}
-            selectedSlots={selectedSlots}
-            setSelectedSlots={setSelectedSlots}
-            refreshKey={refreshKey} // 🔑 pass refresh signal
-          />
+        {message && (
+          <div className={message.type === "ok" ? "db-msg-ok" : "db-msg-err"}>
+            {message.text}
+          </div>
         )}
 
-        {/* Show selected times */}
-        {renderSelection()}
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem" }}>
+            <div className="db-field">
+              <label className="db-label">Tavola</label>
+              <select
+                className="db-select"
+                value={selectedBoard}
+                onChange={(e) => { setSelectedBoard(e.target.value); setSelectedSlots([]); }}
+                required
+              >
+                <option value="">— Scegli una tavola —</option>
+                {boards.map((b) => (
+                  <option key={b.id} value={b.id} disabled={!b.is_available}>
+                    {b.size} {b.type}{!b.is_available ? " (non disponibile)" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="db-field">
+              <label className="db-label">Data</label>
+              <input
+                className="db-input"
+                type="date"
+                value={date}
+                onChange={(e) => { setDate(e.target.value); setSelectedSlots([]); }}
+                required
+                min={new Date().toISOString().split("T")[0]}
+              />
+            </div>
+          </div>
 
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={selectedSlots.length < 1} // ✅ allow 1 slot too
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
-        >
-          Confirm Rental
-        </button>
-      </form>
+          {selectedBoard && date && (
+            <div className="db-field">
+              <BoardAvailability
+                boardId={selectedBoard}
+                date={date}
+                selectedSlots={selectedSlots}
+                setSelectedSlots={setSelectedSlots}
+                refreshKey={refreshKey}
+              />
+            </div>
+          )}
+
+          {selectedSummary() && (
+            <div style={{
+              background: "rgba(29,233,216,0.07)",
+              border: "1px solid rgba(29,233,216,0.2)",
+              borderRadius: 6,
+              padding: "0.6rem 1rem",
+              fontSize: "0.85rem",
+              color: "#1de9d8",
+              marginBottom: "1rem",
+            }}>
+              Orario selezionato: <strong>{selectedSummary()}</strong>
+            </div>
+          )}
+
+          <button
+            className="db-btn db-btn-primary"
+            type="submit"
+            disabled={loading || selectedSlots.length === 0}
+            style={{ width: "100%", padding: "0.8rem", fontSize: "0.95rem" }}
+          >
+            {loading ? "Conferma in corso…" : "Conferma Noleggio"}
+          </button>
+        </form>
     </div>
   );
 }

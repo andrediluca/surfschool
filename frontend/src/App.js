@@ -6,6 +6,8 @@ import Dashboard from "./components/Dashboard";
 import Conditions from "./components/Conditions";
 import Register from "./components/Register";
 import BookingDetail from "./components/BookingDetail";
+import InstructorDashboard from "./components/InstructorDashboard";
+import SurfCallBanner from "./components/SurfCallBanner";
 
 
 function App() {
@@ -15,8 +17,11 @@ function App() {
         {/* Navbar */}
         <Navbar />
 
+        {/* Surf call banner — shown on all pages when a call is active */}
+        <SurfCallBanner />
+
         {/* Page content */}
-        <main className="flex-grow p-6">
+        <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
@@ -24,6 +29,7 @@ function App() {
             <Route path="/conditions" element={<Conditions />} />
             <Route path="/booking/:id" element={<BookingDetail />} />
             <Route path="/signup" element={<Register />} />
+            <Route path="/instructor" element={<InstructorDashboard />} />
           </Routes>
         </main>
       </div>
