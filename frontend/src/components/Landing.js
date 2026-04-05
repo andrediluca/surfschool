@@ -269,6 +269,80 @@ const css = `
     margin: 0;
   }
 
+  /* ── Sponsors ── */
+  .dn-sponsors-section {
+    padding: 4rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .dn-sponsors-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.38em;
+    color: rgba(232,240,247,0.28);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+  .dn-sponsors-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .dn-sponsor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    padding: 0 1.75rem;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.025);
+    transition: border-color 0.3s, opacity 0.3s;
+    opacity: 0.55;
+    min-width: 130px;
+  }
+  .dn-sponsor:hover { border-color: rgba(29,233,216,0.22); opacity: 1; }
+  .dn-sponsor img {
+    height: 28px;
+    width: auto;
+    filter: grayscale(1) brightness(1.8);
+    object-fit: contain;
+  }
+  .dn-sponsor-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.12em;
+    color: rgba(232,240,247,0.7);
+  }
+
+  /* ── Social buttons ── */
+  .dn-socials {
+    display: flex;
+    gap: 0.65rem;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+  }
+  .dn-social {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(232,240,247,0.45);
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.2s;
+  }
+  .dn-social:hover {
+    border-color: rgba(29,233,216,0.35);
+    color: #1de9d8;
+    background: rgba(29,233,216,0.06);
+    transform: translateY(-2px);
+  }
+  .dn-social svg { width: 16px; height: 16px; fill: currentColor; }
+
   /* ── CTA banner ── */
   .dn-cta-wrap { padding: 0 2rem; }
   .dn-cta {
@@ -363,6 +437,45 @@ const services = [
     icon: "📡",
     name: "Condizioni del Mare",
     desc: "Controlla le condizioni della spiaggia ogni giorno — altezza delle onde, temperatura dell'acqua e livello consigliato.",
+  },
+];
+
+// ── Replace logo/url with real assets when available ──
+const sponsors = [
+  { name: "Bagno Paradiso", logo: null, url: "#" },
+  { name: "Sponsor 2",     logo: null, url: "#" },
+  { name: "Sponsor 3",     logo: null, url: "#" },
+  { name: "Sponsor 4",     logo: null, url: "#" },
+];
+
+const socials = [
+  {
+    name: "Instagram",
+    url: "https://instagram.com/delta9surfschool",
+    icon: (
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    ),
+  },
+  {
+    name: "Facebook",
+    url: "https://facebook.com/delta9surfschool",
+    icon: (
+      <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    ),
+  },
+  {
+    name: "TikTok",
+    url: "https://tiktok.com/@delta9surfschool",
+    icon: (
+      <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/></svg>
+    ),
+  },
+  {
+    name: "YouTube",
+    url: "https://youtube.com/@delta9surfschool",
+    icon: (
+      <svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+    ),
   },
 ];
 
@@ -489,6 +602,25 @@ export default function Landing() {
           </div>
         </section>
 
+        <div className="dn-divider" />
+
+        {/* ── Sponsors ── */}
+        <div className="dn-sponsors-section">
+          <div className="dn-sponsors-label">Con il supporto di</div>
+          <div className="dn-sponsors-row">
+            {sponsors.map((s) => (
+              <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer" className="dn-sponsor">
+                {s.logo
+                  ? <img src={s.logo} alt={s.name} />
+                  : <span className="dn-sponsor-name">{s.name}</span>
+                }
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div className="dn-divider" />
+
         {/* ── CTA banner ── */}
         <div className="dn-cta-wrap">
           <div className="dn-cta">
@@ -520,6 +652,14 @@ export default function Landing() {
         </div>
 
         <footer className="dn-footer">
+          <div className="dn-socials">
+            {socials.map((s) => (
+              <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"
+                className="dn-social" title={s.name} aria-label={s.name}>
+                {s.icon}
+              </a>
+            ))}
+          </div>
           © {new Date().getFullYear()} Delta9 Surf School · Associazione Sportiva Dilettantistica
           · Marina di Carrara, Toscana · FISSW / CONI
         </footer>

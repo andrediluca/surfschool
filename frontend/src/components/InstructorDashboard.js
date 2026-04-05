@@ -661,7 +661,7 @@ async function shareSession(lesson) {
 }
 
 // ── SlotRoster: shows bookings for one slot, handles drag-drop ──
-function SlotRoster({ slot, lessonSlots, onStudentClick, onMoved, refreshKey }) {
+function SlotRoster({ slot, lessonSlots, onStudentClick, onMoved, refreshKey, onDelete }) {
   const [bookings, setBookings] = useState(null);
   const [dragOver, setDragOver] = useState(false);
 
@@ -722,6 +722,11 @@ function SlotRoster({ slot, lessonSlots, onStudentClick, onMoved, refreshKey }) 
           <span className="id-checkin-count">
             {booked} prenotati · {checkedIn} presenti
           </span>
+        )}
+        {onDelete && (
+          <button className="id-btn id-btn-danger id-btn-sm"
+            style={{ marginLeft: "auto", flexShrink: 0 }}
+            onClick={onDelete} title="Rimuovi gruppo">✕</button>
         )}
       </div>
 
@@ -950,20 +955,15 @@ function LessonsTab({ onStudentClick }) {
                     </p>
                   )}
                   {l.slots?.map((slot) => (
-                    <div key={slot.id} style={{ position: "relative" }}>
-                      <SlotRoster
-                        slot={slot}
-                        lessonSlots={l.slots}
-                        onStudentClick={onStudentClick}
-                        onMoved={() => reloadLesson(l.id)}
-                        refreshKey={rosterKeys[l.id] || 0}
-                      />
-                      <button
-                        className="id-btn id-btn-danger id-btn-sm"
-                        style={{ position: "absolute", top: "0.75rem", right: "1rem" }}
-                        onClick={() => deleteSlot(slot.id, l.id)}
-                        title="Rimuovi gruppo">✕</button>
-                    </div>
+                    <SlotRoster
+                      key={slot.id}
+                      slot={slot}
+                      lessonSlots={l.slots}
+                      onStudentClick={onStudentClick}
+                      onMoved={() => reloadLesson(l.id)}
+                      refreshKey={rosterKeys[l.id] || 0}
+                      onDelete={() => deleteSlot(slot.id, l.id)}
+                    />
                   ))}
 
                   {/* Add slot toggle */}
